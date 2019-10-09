@@ -77,12 +77,12 @@ struct BackEdge {
 };
 
 
-typedef map<ForwardEdge, GsapnProjDB>					forwardEdge_Projected; // to store all forward edges expansion and their projected database, only use in first round.
-typedef map<ForwardEdge, GsapnProjDB,cmp_reversefrom>	forwardEdge_Projected2; /// to store all forward edges expansion and their projected database.
+typedef map<ForwardEdge, GspanProjDB>					forwardEdge_Projected; // to store all forward edges expansion and their projected database, only use in first round.
+typedef map<ForwardEdge, GspanProjDB,cmp_reversefrom>	forwardEdge_Projected2; /// to store all forward edges expansion and their projected database.
 typedef forwardEdge_Projected::iterator						forwardProjected_iter;
 typedef forwardEdge_Projected2::iterator					forwardProjected_iter2;
 
-typedef map<BackEdge, GsapnProjDB>				backEdge_Projected;// to store all forward edges expansion and their projected database.
+typedef map<BackEdge, GspanProjDB>				backEdge_Projected;// to store all forward edges expansion and their projected database.
 typedef backEdge_Projected::iterator				backProjected_iter;
 
 
@@ -155,23 +155,6 @@ public:
 		items.shrink_to_fit();
 		pdb.clear();
 		pdb.shrink_to_fit();
-	}
-
-	//support counting. Each graph will support current pattern only once
-	unsigned int support ()
-	{
-		unsigned int size = 0;
-		set<unsigned int> visited;
-
-		for (vector<GspanProjTrans>::iterator cur = pdb.begin(); cur != pdb.end(); ++cur) {
-			int tid = cur->tid;
-			if (visited.find(tid) == visited.end()) {
-				visited.insert(tid);
-				++size;
-			}
-		}
-
-		return size;
 	}
 
 	void print(ostream& fout){

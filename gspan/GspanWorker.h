@@ -60,14 +60,22 @@ public:
 			 * labels explicitly.
 			 */
 			map<unsigned int, unsigned int> singleVertexLabel;
+			vector<map<unsigned int, unsigned int> > VertexOfThread(THREADS);
+			#pragma omp parallel for schedule(dynamic, CHUNK) num_threads(THREADS)
 			for (unsigned int id = 0; id < TransDB().size(); ++id) {
+				int thread_id = omp_get_thread_num();
 				GspanTrans* trans = TransDB()[id];
 				set<int> labelSet;
 				for (unsigned int nid = 0 ; nid < trans->graph.size() ; ++nid) {
 					labelSet.insert(trans->graph[nid].label);
 				}
 				for(set<int>::iterator it=labelSet.begin(); it != labelSet.end(); it++)
-					singleVertexLabel[*it]++;
+					VertexOfThread[thread_id][*it]++;
+			}
+			for(int i = 0; i < THREADS; i++){
+				map<unsigned int, unsigned int>& cur = VertexOfThread[i];
+				for(map<unsigned int, unsigned int>::iterator it = cur.begin(); it!=cur.end(); it++)
+					singleVertexLabel[it->first] += it->second;
 			}
 
 			set<int> frequent_set;
@@ -95,6 +103,7 @@ public:
 			}
 
 			//delete infrequent edges and build edges id from each graph
+			#pragma omp parallel for schedule(dynamic, CHUNK) num_threads(THREADS)
 			for (unsigned int id = 0; id < TransDB().size(); ++id) {
 				GspanTrans* trans = TransDB()[id];
 				for (vector<Vertex>::iterator it1 = trans->graph.begin(); it1 != trans->graph.end();) {
@@ -154,13 +163,26 @@ public:
 			// merge candidatesOfThread elements
 			for(int i = 0; i < THREADS; i++){
 				forwardEdge_Projected& candidates_i = candidatesOfThread[i];
-				for(forwardEdge_Projected2::iterator it = candidates_i.begin(); it!= candidates_i.end(); it++){
-					GsapnProjDB& pdb_i = it->second;
-					GsapnProjDB& pdb = candidates[it->first];
+				for(forwardProjected_iter it = candidates_i.begin(); it!= candidates_i.end(); it++){
+					GspanProjDB& pdb_i = it->second;
+					GspanProjDB& pdb = candidates[it->first];
 					pdb.insert(pdb.end(), pdb_i.begin(), pdb_i.end());
 					pdb_i.clear(); // to release memory space timely
 				}
 				candidates_i.clear(); // to release memory space timely
+			}
+
+			for(forwardProjected_iter it = candidates.begin(); it!= candidates.end(); ){
+				GspanProjDB& pdb = it->second;
+				int sup = pdb.support();
+				if (sup < minsup) {
+					forwardProjected_iter tmp = it;
+					++tmp;
+					candidates.erase(it);
+					it = tmp;
+				} else {
+					++it;
+				}
 			}
 		}
 
@@ -173,13 +195,10 @@ public:
 			curPat.push (0, 1, edge.fromLabel, edge.elabel, edge.toLabel);
 			//swap the memory of projected database into new pattern.
 			curPat.pdb.swap(fromlabel->second);
-			curPat.sup = curPat.support();
-			if(curPat.sup<minsup) {
-				delete rootTask;
-				continue;
-			}
+			curPat.sup = fromlabel->second.sup;
 			task_queue.push(rootTask);
 		}
 	}
 };
 #endif /* GSPANWORKER_H_ */
+

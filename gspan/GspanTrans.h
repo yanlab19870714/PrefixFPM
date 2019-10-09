@@ -207,8 +207,9 @@ public:
 };
 
 //pdb to certain pattern
-class GsapnProjDB: public vector<GspanProjTrans> {
+class GspanProjDB: public vector<GspanProjTrans> {
 public:
+	int sup; // pdb may contain multiple matched instances of the same transaction
 	void push (int id, Edge *edge, GspanProjTrans *prev)
 	{
 		resize (size() + 1);
@@ -218,11 +219,29 @@ public:
 			d.pgraph = prev->pgraph;
 		d.pgraph.push_back(edge);
 	}
+
+	//support counting. Each graph will support current pattern only once
+	unsigned int support ()
+	{
+		unsigned int size = 0;
+		set<unsigned int> visited;
+
+		for (vector<GspanProjTrans>::iterator cur = begin(); cur != end(); ++cur) {
+			int tid = cur->tid;
+			if (visited.find(tid) == visited.end()) {
+				visited.insert(tid);
+				++size;
+			}
+		}
+
+		sup = size;
+		return size;
+	}
 };
 
 
 
-//store all visited vertex and edge. History will be built with a GspanProj and its corresponding GsapnTrans object by build()
+//store all visited vertex and edge. History will be built with a GspanProj and its corresponding GspanTrans object by build()
 //used to avoid expanding an already visited edges in the transaction when growing projected transaction into the pdbs of the children
 class History: public vector<Edge*> {
 private:

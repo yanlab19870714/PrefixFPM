@@ -42,7 +42,7 @@ public:
 	GspanPattern	MIN_PATTERN;
 	GspanTrans   MIN_GRAPH;
 
-	bool project_is_min (GsapnProjDB &projected)
+	bool project_is_min (GspanProjDB &projected)
 	{
 		const RMPath& rmpath = MIN_PATTERN.buildRMPath ();
 		int minlabel         = MIN_PATTERN.items[0].fromlabel;
@@ -259,19 +259,44 @@ public:
 				backEdge_Projected& back_root = children_i.new_bck_root;
 				forwardEdge_Projected2& forward_root = children_i.new_fwd_root;
 				for(backEdge_Projected::iterator it = back_root.begin(); it!= back_root.end(); it++){
-					GsapnProjDB& pdb_i = it->second;
-					GsapnProjDB& pdb = children.new_bck_root[it->first];
+					GspanProjDB& pdb_i = it->second;
+					GspanProjDB& pdb = children.new_bck_root[it->first];
 					pdb.insert(pdb.end(), pdb_i.begin(), pdb_i.end());
 					pdb_i.clear(); // to release memory space timely
 				}
 				children_i.new_bck_root.clear(); // to release memory space timely
 				for(forwardEdge_Projected2::iterator it = forward_root.begin(); it!= forward_root.end(); it++){
-					GsapnProjDB& pdb_i = it->second;
-					GsapnProjDB& pdb = children.new_fwd_root[it->first];
+					GspanProjDB& pdb_i = it->second;
+					GspanProjDB& pdb = children.new_fwd_root[it->first];
 					pdb.insert(pdb.end(), pdb_i.begin(), pdb_i.end());
 					pdb_i.clear(); // to release memory space timely
 				}
 				children_i.new_fwd_root.clear(); // to release memory space timely
+			}
+		}
+
+		for(forwardProjected_iter2 it = children.new_fwd_root.begin(); it != children.new_fwd_root.end();){
+			GspanProjDB& pdb = it->second;
+			int sup = pdb.support();
+			if (sup < minsup) {
+				forwardProjected_iter2 tmp = it;
+				++tmp;
+				children.new_fwd_root.erase(it);
+				it = tmp;
+			} else {
+				++it;
+			}
+		}
+		for(backProjected_iter it = children.new_bck_root.begin(); it != children.new_bck_root.end();){
+			GspanProjDB& pdb = it->second;
+			int sup = pdb.support();
+			if (sup < minsup) {
+				backProjected_iter tmp = it;
+				++tmp;
+				children.new_bck_root.erase(it);
+				it = tmp;
+			} else {
+				++it;
 			}
 		}
 
@@ -285,7 +310,7 @@ public:
 	 * e: the child append to previous pattern
 	 * proj: the project transactions of new pattern
 	 */
-	Task* project(const Element& e, vector<GspanProjTrans>& proj){
+	Task* project(const Element& e, GspanProjDB& proj){
 		GspanTask* newTask = new GspanTask;
 		GspanPattern& newPat = newTask->pat;
 
@@ -295,8 +320,7 @@ public:
 
 		//swap the memory of projected database into new pattern.
 		newPat.pdb.swap(proj);
-
-		newPat.sup = newPat.support();
+		newPat.sup = proj.sup;
 
 		return newTask;
 	};
@@ -305,11 +329,11 @@ public:
 		while(children.it2!=children.new_bck_root.end()){
 			BackEdge edge = children.it2->first;
 			Element e(maxtoc, edge.to, -1, edge.elabel, -1);
-			vector<GspanProjTrans>& pdb = children.it2->second;
+			GspanProjDB& pdb = children.it2->second;
 			Task* newTask = this->project(e, pdb);
 			children.it2++;
 			//here the pattern and transaction are both ready, so delete infrequent and not canonical pattern here
-			if(newTask->pat.sup<minsup || !((GspanTask*)newTask)->is_min()) {
+			if(!((GspanTask*)newTask)->is_min()) {
 				delete newTask;
 				continue;
 			}
@@ -319,10 +343,10 @@ public:
 			ForwardEdge edge = children.it1->first;
 
 			Element e (edge.from, maxtoc+1, -1, edge.elabel, edge.toLabel);
-			vector<GspanProjTrans>& pdb = children.it1->second;
+			GspanProjDB& pdb = children.it1->second;
 			Task* newTask = this->project(e, pdb);
 			children.it1++;
-			if(newTask->pat.sup<minsup || !((GspanTask*)newTask)->is_min()) {
+			if(!((GspanTask*)newTask)->is_min()) {
 				delete newTask;
 				continue;
 			}
