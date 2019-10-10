@@ -18,6 +18,10 @@ Note that OpenMP is used and should be enabled in your Makefile. There are 3 run
 
 A sample command to run each program is put at the end of each each run_XXX.cpp file, which reads data from the sample data that we put in the folder of each application.
 
+The following is the complete command:
+
+./run -s [support_threshold] -i [input_file] -n [thread_number] -t [task_parallelism_threshold] -T [PDB_parallelism_threshold]
+
 ### Contact
 Da Yan: http://www.cs.uab.edu/yanda
 
