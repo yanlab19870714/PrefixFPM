@@ -111,7 +111,7 @@ public:
 		 * "e" marks the edge of graph. If it doesn't appear in g, insert it into from-vertex's adject list.
 		 * */
 		while (true) {
-			unsigned int pos = is.tellg ();
+			//size_t pos = is.tellg ();
 			if (! is.getline (line, 1024))
 				break;
 			result.clear ();
@@ -120,7 +120,7 @@ public:
 				// do nothing
 			} else if (result[0] == "t") {
 				if (! graph.empty()) { // use as delimiter
-					//is.seekg (pos, ios_base::beg); //removed from orginial code as this is a big slowdown in graph loading...
+					//is.seekg (pos, ios_base::beg); //removed from orginial code as this is useless
 					break;
 				}
 			} else if (result[0] == "v" && result.size() >= 3) {
