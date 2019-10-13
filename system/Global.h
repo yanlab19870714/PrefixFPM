@@ -37,8 +37,8 @@ int THREADS = 4;// number of threads
 int CHUNK = 1;// how many elements per access in OMP parallel-for that processes PDB rows
 int batch_size = 1; // how many tasks per access to the task queue
 int minsup = 1;
-int tauDB_omp = 1000; // 10000; // projDB size threshold, below which task is run in a single thread
-int tauDB_singlethread = 1; //100; // projDB size threshold, below which task is run in a single thread
+int tauDB_omp = 10000000; // projDB size threshold, below which task is run in a single thread
+int tauDB_singlethread = 100; // projDB size threshold, below which task is run in a single thread
 bool binary_input = false; // can only be true for Sleuth
 
 #define WAIT_TIME_WHEN_IDLE 100
