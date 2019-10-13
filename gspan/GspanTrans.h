@@ -120,7 +120,7 @@ public:
 				// do nothing
 			} else if (result[0] == "t") {
 				if (! graph.empty()) { // use as delimiter
-					is.seekg (pos, ios_base::beg);
+					//is.seekg (pos, ios_base::beg); //removed from orginial code as this is a big slowdown in graph loading...
 					break;
 				}
 			} else if (result[0] == "v" && result.size() >= 3) {
