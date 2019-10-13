@@ -187,6 +187,7 @@ public:
 	// ============== main logic end =================
 
 	void run() {
+		global_end_label = false; //this allows read-once and run many times with different minsup
 		setRoot(tqueue());
 		parallel_run();
 	}
