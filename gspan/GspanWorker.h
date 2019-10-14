@@ -171,18 +171,18 @@ public:
 				}
 				candidates_i.clear(); // to release memory space timely
 			}
+		}
 
-			for(forwardProjected_iter it = candidates.begin(); it!= candidates.end(); ){
-				GspanProjDB& pdb = it->second;
-				int sup = pdb.support();
-				if (sup < minsup) {
-					forwardProjected_iter tmp = it;
-					++tmp;
-					candidates.erase(it);
-					it = tmp;
-				} else {
-					++it;
-				}
+		for(forwardProjected_iter it = candidates.begin(); it!= candidates.end(); ){
+			GspanProjDB& pdb = it->second;
+			int sup = pdb.support();
+			if (sup < minsup) {
+				forwardProjected_iter tmp = it;
+				++tmp;
+				candidates.erase(it);
+				it = tmp;
+			} else {
+				++it;
 			}
 		}
 
