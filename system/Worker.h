@@ -187,7 +187,10 @@ public:
 	// ============== main logic end =================
 
 	void run() {
+		ready_go = true;
+		global_num_idle = 0;
 		global_end_label = false; //this allows read-once and run many times with different minsup
+		//gspan cannot do this, as setRoot() part 2 deletes infrequent edges...
 		setRoot(tqueue());
 		parallel_run();
 	}
