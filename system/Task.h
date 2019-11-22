@@ -66,9 +66,9 @@ public:
 		return *(stack<TaskT*> *)task_queue;
 	}
 
-	void run(ostream& fout){ // compute the current task, may generate new tasks to task queu
+	void run(ostream& fout){ // compute the current task, may generate new tasks to task queue
 		if(!pre_check(fout)) return;
-		//generate new candidat
+		//generate new candidate
 		setChildren(children);
 		//run new task;
 		while(Task* t = get_next_child()){
