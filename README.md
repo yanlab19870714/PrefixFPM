@@ -28,6 +28,10 @@ Da Yan: https://yanlab19870714.github.io/yanda
 Email: yanda@uab.edu
 
 ### Contributors
-Wenwen Qu
+Wenwen Qu (major co-contributer)
 
-Da Yan
+Da Yan (major co-contributer)
+
+Guimu Guo
+
+Xiaoling Wang
